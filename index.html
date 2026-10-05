@@ -4,72 +4,324 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>NFC Transfer</title>
+
 <style>
 :root { color-scheme: dark; }
 * { box-sizing: border-box; }
+
 body {
-  margin: 0; min-height: 100vh; display: grid; place-items: center;
-  background: #05070a; color: #e8eef5;
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #05070a;
+  color: #e8eef5;
   font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
 }
+
 .card {
-  width: min(92vw, 520px); padding: 28px; border: 1px solid #26313d;
-  border-radius: 18px; background: #0b1016;
+  width: min(92vw, 520px);
+  padding: 28px;
+  border: 1px solid #26313d;
+  border-radius: 18px;
+  background: #0b1016;
   box-shadow: 0 18px 60px rgba(0,0,0,.5);
 }
-.badge { font-size: 12px; letter-spacing: .14em; color: #9fb0c3; }
-h1 { font-size: 26px; margin: 8px 0 22px; }
-.line { margin: 12px 0; color: #bdc9d6; }
-.ok::after { content:" ✓"; color:#6ee7a8; }
-.amount { font-size: 38px; font-weight: 800; margin: 24px 0 4px; }
-.recipient { color:#bdc9d6; margin-bottom:20px; }
-.track { height: 14px; background:#18212b; border-radius:999px; overflow:hidden; }
-.bar { height:100%; width:0%; background:#e8eef5; transition:width .35s ease; }
-.percent { text-align:right; margin-top:8px; font-variant-numeric:tabular-nums; }
-.done { display:none; margin-top:22px; text-align:center; }
-.done strong { display:block; font-size:25px; margin-bottom:8px; }
-.joke { color:#9fb0c3; font-size:14px; }
-#details { display:none; }
+
+.badge {
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: #9fb0c3;
+}
+
+h1 {
+  font-size: 26px;
+  margin: 8px 0 22px;
+}
+
+.line {
+  margin: 12px 0;
+  color: #bdc9d6;
+}
+
+.ok::after {
+  content: " ✓";
+  color: #6ee7a8;
+}
+
+.amount {
+  font-size: 38px;
+  font-weight: 800;
+  margin: 24px 0 4px;
+}
+
+.recipient {
+  color: #bdc9d6;
+  margin-bottom: 20px;
+}
+
+.track {
+  height: 14px;
+  background: #18212b;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 0%;
+  background: #e8eef5;
+  transition: width .35s ease;
+}
+
+.percent {
+  text-align: right;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.done {
+  display: none;
+  margin-top: 22px;
+  text-align: center;
+}
+
+.done strong {
+  display: block;
+  font-size: 25px;
+  margin-bottom: 8px;
+}
+
+.joke {
+  color: #9fb0c3;
+  font-size: 14px;
+}
+
+#details {
+  display: none;
+}
 </style>
 </head>
+
 <body>
+
 <main class="card">
+
   <div class="badge">SECURE NFC CONNECTION</div>
+
   <h1 id="status">Establishing encrypted connection…</h1>
+
   <div id="checks">
     <div class="line" id="c1">Authenticating device…</div>
     <div class="line" id="c2">Checking financial services…</div>
     <div class="line" id="c3">Preparing transfer request…</div>
   </div>
+
   <section id="details">
-    <div class="amount">£4,762.00</div>
-    <div class="recipient">Recipient: Pirate Retirement Fund 🏴‍☠️</div>
-    <div class="track"><div class="bar" id="bar"></div></div>
-    <div class="percent" id="pct">0%</div>
+
+    <div class="amount" id="amount">
+      £0.00
+    </div>
+
+    <div class="recipient" id="recipient">
+      Recipient: Processing…
+    </div>
+
+    <div class="track">
+      <div class="bar" id="bar"></div>
+    </div>
+
+    <div class="percent" id="pct">
+      0%
+    </div>
+
   </section>
+
   <section class="done" id="done">
+
     <strong>TRANSFER COMPLETE ✓</strong>
-    <div>Thanks for the doubloons. 🏴‍☠️</div>
-    <p class="joke">PRANK MODE • No account, banking app, credentials, or money were accessed.</p>
+
+    <div id="completionMessage">
+      Transaction completed.
+    </div>
+
+    <p class="joke">
+      PRANK MODE • No account, banking app, credentials, or money were accessed.
+    </p>
+
   </section>
+
 </main>
+
 <script>
-const sleep = ms => new Promise(r=>setTimeout(r,ms));
-(async()=>{
-  await sleep(900); document.querySelector('#c1').textContent='Device authenticated'; document.querySelector('#c1').classList.add('ok');
-  await sleep(900); document.querySelector('#c2').textContent='Financial services detected'; document.querySelector('#c2').classList.add('ok');
-  await sleep(900); document.querySelector('#c3').textContent='Transfer request generated'; document.querySelector('#c3').classList.add('ok');
-  await sleep(650); document.querySelector('#status').textContent='Transfer initiated';
-  document.querySelector('#details').style.display='block';
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* -------------------------
+   RANDOM AMOUNT
+------------------------- */
+
+const randomAmount =
+  Math.random() * (9999.99 - 500) + 500;
+
+const formattedAmount =
+  randomAmount.toLocaleString("en-GB", {
+    style: "currency",
+    currency: "GBP"
+  });
+
+
+/* -------------------------
+   RANDOM RECIPIENTS
+------------------------- */
+
+const recipients = [
+
+  {
+    name: "Pirate Retirement Fund 🏴‍☠️",
+    message: "Thanks for the doubloons. 🏴‍☠️"
+  },
+
+  {
+    name: "Emergency Rum Reserve 🥃",
+    message: "The rum supply has been secured. 🥃"
+  },
+
+  {
+    name: "Kraken Compensation Scheme 🐙",
+    message: "The Kraken appreciates your contribution. 🐙"
+  },
+
+  {
+    name: "Definitely Not Stolen Ltd 👀",
+    message: "Definitely a completely legitimate transaction. 👀"
+  },
+
+  {
+    name: "International Monkey Business 🐒",
+    message: "Monkey business successfully funded. 🐒"
+  },
+
+  {
+    name: "Suspicious Treasure Holdings 💰",
+    message: "Your treasure has been safely relocated. 💰"
+  },
+
+  {
+    name: "Captain Blackbeard's Pension Fund ☠️",
+    message: "Blackbeard can finally retire. ☠️"
+  },
+
+  {
+    name: "The Ministry of Bad Decisions 🤦",
+    message: "Your contribution to poor decision making is appreciated. 🤦"
+  },
+
+  {
+    name: "Nigerian Prince Recovery Fund 👑",
+    message: "The Prince will definitely repay you soon. 👑"
+  },
+
+  {
+    name: "Totally Legitimate Tax Haven 🏝️",
+    message: "Your funds are now enjoying the sunshine. 🏝️"
+  },
+
+  {
+    name: "Intergalactic Parking Enforcement 👽",
+    message: "Your outstanding space parking fine has been settled. 👽"
+  },
+
+  {
+    name: "Villain Headquarters Maintenance Fund 🦹",
+    message: "The secret lair's electricity bill has been paid. 🦹"
+  }
+
+];
+
+const selectedRecipient =
+  recipients[Math.floor(Math.random() * recipients.length)];
+
+
+/* -------------------------
+   SET RANDOM DETAILS
+------------------------- */
+
+document.querySelector("#amount").textContent =
+  formattedAmount;
+
+document.querySelector("#recipient").textContent =
+  "Recipient: " + selectedRecipient.name;
+
+document.querySelector("#completionMessage").textContent =
+  selectedRecipient.message;
+
+
+/* -------------------------
+   PRANK SEQUENCE
+------------------------- */
+
+(async () => {
+
+  await sleep(900);
+
+  document.querySelector("#c1").textContent =
+    "Device authenticated";
+
+  document.querySelector("#c1")
+    .classList.add("ok");
+
+
+  await sleep(900);
+
+  document.querySelector("#c2").textContent =
+    "Financial services detected";
+
+  document.querySelector("#c2")
+    .classList.add("ok");
+
+
+  await sleep(900);
+
+  document.querySelector("#c3").textContent =
+    "Transfer request generated";
+
+  document.querySelector("#c3")
+    .classList.add("ok");
+
+
+  await sleep(650);
+
+  document.querySelector("#status").textContent =
+    "Transfer initiated";
+
+  document.querySelector("#details").style.display =
+    "block";
+
+
   for (const n of [7,18,31,46,63,78,91,100]) {
-    document.querySelector('#bar').style.width=n+'%';
-    document.querySelector('#pct').textContent=n+'%';
+
+    document.querySelector("#bar").style.width =
+      n + "%";
+
+    document.querySelector("#pct").textContent =
+      n + "%";
+
     await sleep(420);
   }
+
+
   await sleep(500);
-  document.querySelector('#status').textContent='Transaction processed';
-  document.querySelector('#done').style.display='block';
+
+  document.querySelector("#status").textContent =
+    "Transaction processed";
+
+  document.querySelector("#done").style.display =
+    "block";
+
 })();
+
 </script>
+
 </body>
 </html>
